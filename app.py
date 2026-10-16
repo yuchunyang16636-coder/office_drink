@@ -1,6 +1,5 @@
 import streamlit as st
 import datetime
-import pandas as pd
 
 # ==========================================
 # 1. 頁面基本設定
@@ -8,7 +7,7 @@ import pandas as pd
 st.set_page_config(page_title="辦公室訂飲料系統", page_icon="🧋", layout="centered")
 
 # ==========================================
-# 2. 初始化 Session State (用來記憶頁面狀態與變數)
+# 2. 初始化 Session State
 # ==========================================
 if "page" not in st.session_state:
     st.session_state.page = "home"
@@ -17,75 +16,73 @@ if "order_date" not in st.session_state:
 if "shop_name" not in st.session_state:
     st.session_state.shop_name = ""
 if "device_type" not in st.session_state:
-    st.session_state.device_type = "網頁版 (電腦)"
-
-def go_to_order_page():
-    st.session_state.page = "order"
-
-def go_to_home():
-    st.session_state.page = "home"
+    st.session_state.device_type = ""
 
 # ==========================================
-# 3. 畫面設計：第一頁 (設定表單)
+# 3. 第一頁：極簡首頁 (只選裝置)
 # ==========================================
 if st.session_state.page == "home":
-    st.title("🧋 辦公室下午茶訂購系統")
-    st.markdown("### 📋 第一步：請先設定今天的訂單資訊")
+    # 置中大標題
+    st.markdown("<h1 style='text-align: center; font-size: 3.5rem;'>🧋 辦公室訂飲料系統</h1>", unsafe_allow_html=True)
+    st.markdown("<h3 style='text-align: center; color: #666; margin-bottom: 40px;'>請選擇您的點餐裝置</h3>", unsafe_allow_html=True)
     
-    st.write("") 
-    
-    # 變數 1：觀看裝置選擇 (影響後續排版)
-    device_options = ["網頁版 (電腦)", "手機版"]
-    selected_device = st.radio("📱 請選擇您的觀看裝置", options=device_options, horizontal=True)
-    
-    # 變數 2：日期選擇
-    selected_date = st.date_input("📅 選擇訂購日期", value=st.session_state.order_date)
-    
-    # 變數 3：飲料店選擇
-    shop_options = [
-        "請選擇...", "50嵐", "可不可熟成紅茶", "麻古茶坊", 
-        "迷客夏", "得正", "清心福全", "茶湯會", "其他 (自行輸入)"
-    ]
-    selected_shop = st.selectbox("🏪 選擇飲料店", options=shop_options)
-    
-    custom_shop = ""
-    if selected_shop == "其他 (自行輸入)":
-        custom_shop = st.text_input("✍️ 請輸入飲料店名稱：")
-    
-    st.write("") 
-    
-    # 進入下一步的按鈕
-    if st.button("建立訂單，進入點餐畫面 ➡️", type="primary", use_container_width=True):
-        final_shop_name = custom_shop if selected_shop == "其他 (自行輸入)" else selected_shop
-        
-        if final_shop_name == "請選擇..." or final_shop_name.strip() == "":
-            st.error("⚠️ 請選擇或輸入飲料店名稱喔！")
-        else:
-            st.session_state.order_date = selected_date
-            st.session_state.shop_name = final_shop_name
-            st.session_state.device_type = selected_device
-            go_to_order_page()
+    # 用 Columns 讓兩個按鈕並排、變大
+    col1, col2 = st.columns(2)
+    with col1:
+        # 按下按鈕後，記錄裝置並跳轉到點餐頁面
+        if st.button("💻 網頁版 (電腦)", use_container_width=True, type="primary"):
+            st.session_state.device_type = "網頁版"
+            st.session_state.page = "order"
+            st.rerun()
+            
+    with col2:
+        if st.button("📱 手機版", use_container_width=True, type="primary"):
+            st.session_state.device_type = "手機版"
+            st.session_state.page = "order"
             st.rerun()
 
 # ==========================================
-# 4. 畫面設計：第二頁 (大家填寫點餐明細的地方)
+# 4. 第二頁：設定訂單與點餐區
 # ==========================================
 elif st.session_state.page == "order":
-    st.title(f"📝 {st.session_state.shop_name} - 點餐表")
-    
-    # 顯示目前設定狀態
-    st.markdown(f"**📅 日期：** {st.session_state.order_date.strftime('%Y-%m-%d')} | **🖥️ 模式：** {st.session_state.device_type}")
+    # 頂部列：返回按鈕與目前模式提示
+    col_back, col_title = st.columns([1, 4])
+    with col_back:
+        if st.button("⬅️ 返回首頁"):
+            st.session_state.page = "home"
+            st.rerun()
+    with col_title:
+        st.markdown(f"<div style='text-align: right; color: #888; padding-top: 10px;'>目前模式：{st.session_state.device_type}</div>", unsafe_allow_html=True)
+        
     st.markdown("---")
     
-    # 根據不同裝置，顯示不同的排版提示 (這裡我們先做排版區隔的測試)
-    if st.session_state.device_type == "手機版":
-        st.info("📱 目前為【手機版】模式。未來的飲料清單會以「垂直卡片」的方式往下排列，方便單手滑動觀看！")
-        # 手機版排版預留區
+    # 步驟 1：把原本的日期與店家選擇移來這裡
+    st.markdown("### 📋 步驟 1：確認訂單資訊")
+    col_date, col_shop = st.columns(2)
+    with col_date:
+        st.session_state.order_date = st.date_input("📅 選擇訂購日期", value=st.session_state.order_date)
+        
+    with col_shop:
+        shop_options = ["請選擇...", "50嵐", "可不可熟成紅茶", "麻古茶坊", "迷客夏", "得正", "清心福全", "茶湯會", "其他 (自行輸入)"]
+        selected_shop = st.selectbox("🏪 選擇飲料店", options=shop_options)
+        
+    # 如果選「其他」，跳出文字框自己打
+    if selected_shop == "其他 (自行輸入)":
+        custom_shop = st.text_input("✍️ 請輸入飲料店名稱：")
+        st.session_state.shop_name = custom_shop
     else:
-        st.success("💻 目前為【網頁版】模式。未來的飲料清單會以「滿版大表格」呈現，方便一眼看清楚所有人點了什麼！")
-        # 網頁版排版預留區
+        st.session_state.shop_name = selected_shop if selected_shop != "請選擇..." else ""
 
     st.markdown("---")
-    if st.button("⬅️ 返回修改設定"):
-        go_to_home()
-        st.rerun()
+    
+    # 步驟 2：只有選好店家後，才解鎖下方的「點餐區」
+    if st.session_state.shop_name == "":
+        st.info("👆 請先在上方選擇飲料店，即可解鎖點餐區塊！")
+    else:
+        st.markdown(f"### 📝 步驟 2：開始點餐 ({st.session_state.shop_name})")
+        
+        # 這裡根據第一頁選的裝置，呈現不同排版的預留區塊
+        if st.session_state.device_type == "手機版":
+            st.warning("📱 【手機版排版區】接下來這裡會設計成適合手機螢幕、不用左右滑動的點餐卡片。")
+        else:
+            st.success("💻 【網頁版排版區】接下來這裡會設計成寬敞的點餐大表格。")
