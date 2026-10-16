@@ -46,26 +46,88 @@ st.markdown("""
         font-weight: 900 !important;
         letter-spacing: 2px;
     }
+    
+    /* 價格顯示的特別樣式 */
+    .price-tag {
+        font-size: 1.5rem;
+        color: #d9534f;
+        font-weight: 900;
+        background: #fdf2f2;
+        padding: 5px 15px;
+        border-radius: 10px;
+        display: inline-block;
+        margin-top: 10px;
+        border: 2px dashed #d9534f;
+    }
+    
     header[data-testid="stHeader"] { display: none !important; }
     </style>
 """, unsafe_allow_html=True)
 
 # ==========================================
-# 2. 飲料店菜單資料庫 (Dictionary 架構)
+# 2. 飲料店菜單資料庫 (加入價格與尺寸)
 # ==========================================
-# 之後你要新增品項，只要照著這個格式打字加進去就可以了！
+# 格式說明: "飲料名稱": {"尺寸": 價格}
 SHOP_MENUS = {
-    "50嵐": ["波霸奶茶", "珍珠奶茶", "四季春青茶", "黃金烏龍", "冰淇淋紅茶", "旺來紅", "燕麥紅茶拿鐵"],
-    "可不可熟成紅茶": ["熟成紅茶", "春芽綠茶", "胭脂紅茶", "熟成歐蕾", "白玉歐蕾", "春梅冰茶", "冷露歐蕾"],
-    "麻古茶坊": ["楊枝甘露2.0", "芝芝芒果果粒", "香橙果粒茶", "葡萄柚果粒蜜茶", "高山金萱茶", "波霸紅茶拿鐵"],
-    "迷客夏": ["珍珠紅茶拿鐵", "柳丁綠茶", "蜜桃烏龍", "大正紅茶拿鐵", "芋頭鮮奶", "手炒黑糖鮮奶"],
-    "得正": ["紅茶", "綠茶", "春烏龍", "輕烏龍", "焙烏龍", "檸檬春烏龍", "芝士奶蓋春烏龍"],
-    "清心福全": ["烏龍綠茶", "特級綠茶", "珍珠奶茶", "優多綠茶", "隱藏版(珍珠蜂蜜鮮奶普洱)", "冰淇淋紅茶"],
-    "茶湯會": ["蜜香紅茶", "鐵觀音拿鐵", "翡翠檸檬", "碳烤鐵觀音", "觀音拿鐵/珍珠", "黃金蕎麥"],
-    "其他 (自行輸入)": ["請手動輸入飲料名稱"] 
+    "50嵐": {
+        "茉莉綠茶": {"M": 30, "L": 35},
+        "四季春青茶": {"M": 30, "L": 35},
+        "波霸奶茶": {"M": 40, "L": 55},
+        "紅茶拿鐵": {"M": 50, "L": 65},
+        "8冰綠": {"M": 40, "L": 55},
+        "冰淇淋紅茶": {"M": 40, "L": 55}
+    },
+    "可不可熟成紅茶": {
+        "熟成紅茶": {"M": 30, "L": 35},
+        "春芽綠茶": {"M": 30, "L": 35},
+        "熟成歐蕾": {"M": 55, "L": 65},
+        "白玉歐蕾": {"M": 60, "L": 70},
+        "胭脂紅茶": {"M": 40, "L": 45},
+        "春梅冰茶": {"M": 45, "L": 55}
+    },
+    "得正": {
+        "紅茶": {"M": 25, "L": 30},
+        "春烏龍": {"M": 30, "L": 35},
+        "焙烏龍": {"M": 30, "L": 35},
+        "奶茶": {"M": 45, "L": 50},
+        "芝士奶蓋春烏龍": {"M": 50, "L": 60},
+        "檸檬春烏龍": {"M": 55, "L": 65}
+    },
+    "迷客夏": {
+        "大正紅茶拿鐵": {"M": 50, "L": 60},
+        "珍珠紅茶拿鐵": {"M": 60, "L": 70},
+        "芋頭鮮奶": {"M": 65, "L": 85},
+        "娜杯紅茶": {"L": 40},
+        "柳丁綠茶": {"L": 65},
+        "蜜桃烏龍": {"L": 70}
+    },
+    "麻古茶坊": {
+        "高山金萱茶": {"L": 30},
+        "波霸紅茶拿鐵": {"L": 65},
+        "香橙果粒茶": {"L": 75},
+        "葡萄柚果粒蜜茶": {"L": 70},
+        "芝芝芒果果粒": {"L": 95},
+        "楊枝甘露2.0": {"L": 85}
+    },
+    "清心福全": {
+        "烏龍綠茶": {"M": 30, "L": 35},
+        "珍珠奶茶": {"M": 45, "L": 55},
+        "冰淇淋紅茶": {"M": 45, "L": 55},
+        "梅子綠茶": {"M": 40, "L": 50},
+        "優多綠茶": {"L": 50},
+        "隱藏版(珍珠蜂蜜鮮奶普洱)": {"M": 50, "L": 70}
+    },
+    "茶湯會": {
+        "蜜香紅茶": {"預設尺寸": 35},
+        "碳烤鐵觀音": {"預設尺寸": 40},
+        "翡翠檸檬": {"預設尺寸": 65},
+        "觀音拿鐵": {"預設尺寸": 70},
+        "粉粿蕎麥四季春": {"預設尺寸": 60},
+        "觀音雙Q拿鐵": {"預設尺寸": 75}
+    },
+    "其他 (自行輸入)": {} 
 }
 
-# 共通的甜度與冰塊選項
 SUGAR_OPTIONS = ["正常糖", "少糖(7分)", "半糖(5分)", "微糖(3分)", "一分糖", "無糖"]
 ICE_OPTIONS = ["正常冰", "少冰", "微冰", "去冰", "完全去冰", "常溫", "溫", "熱"]
 
@@ -81,7 +143,7 @@ if "shop_name" not in st.session_state:
 if "device_type" not in st.session_state:
     st.session_state.device_type = ""
 if "orders" not in st.session_state:
-    st.session_state.orders = [] # 用來存大家點的飲料
+    st.session_state.orders = [] 
 
 # ==========================================
 # 4. 第一頁：極簡首頁 (只選裝置)
@@ -123,7 +185,6 @@ elif st.session_state.page == "order":
         st.session_state.order_date = st.date_input("📅 選擇訂購日期", value=st.session_state.order_date)
         
     with col_shop:
-        # 這裡的選項自動抓取字典裡面的 key (也就是店家名稱)
         shop_options = ["請選擇..."] + list(SHOP_MENUS.keys())
         selected_shop = st.selectbox("🏪 選擇飲料店", options=shop_options)
         
@@ -141,40 +202,55 @@ elif st.session_state.page == "order":
     else:
         st.markdown(f"### 📝 步驟 2：開始點餐 ({st.session_state.shop_name})")
         
-        # 決定要顯示的菜單清單
-        # 如果是手動輸入的店，就提供一個手動輸入的框框
-        current_menu = SHOP_MENUS.get(selected_shop, [])
-        
         with st.container(border=True):
             col_name, col_drink = st.columns(2)
             with col_name:
                 user_name = st.text_input("👤 您的姓名 (必填)")
             
             with col_drink:
+                # 處理飲料選擇與連動價格
                 if selected_shop == "其他 (自行輸入)":
                     drink_item = st.text_input("🥤 請輸入飲料名稱 (必填)")
                 else:
+                    current_menu = list(SHOP_MENUS[selected_shop].keys())
                     drink_item = st.selectbox("🥤 選擇飲料", options=current_menu)
             
-            col_sugar, col_ice, col_note = st.columns([1, 1, 2])
+            col_size, col_sugar, col_ice = st.columns([1, 1, 1])
+            with col_size:
+                if selected_shop == "其他 (自行輸入)":
+                    selected_size = st.selectbox("📏 尺寸", options=["M", "L", "預設"])
+                    # 手動輸入價格
+                    price = st.number_input("💰 自訂價格 (元)", min_value=0, value=50)
+                else:
+                    # 抓取該飲料有的尺寸與價格
+                    available_sizes = SHOP_MENUS[selected_shop][drink_item]
+                    selected_size = st.selectbox("📏 尺寸", options=list(available_sizes.keys()))
+                    price = available_sizes[selected_size]
+                    
             with col_sugar:
-                sugar_level = st.selectbox("🍬 甜度", options=SUGAR_OPTIONS, index=2) # 預設半糖
+                sugar_level = st.selectbox("🍬 甜度", options=SUGAR_OPTIONS, index=2)
             with col_ice:
-                ice_level = st.selectbox("🧊 冰塊", options=ICE_OPTIONS, index=3) # 預設去冰
-            with col_note:
-                notes = st.text_input("📝 備註 (加料/尺寸大小/其他要求)")
+                ice_level = st.selectbox("🧊 冰塊", options=ICE_OPTIONS, index=3)
+                
+            notes = st.text_input("📝 備註 (加料/其他要求，若有加料請將金額加在下方自訂價格中)")
+            
+            # 顯示連動計算好的價格
+            if selected_shop != "其他 (自行輸入)":
+                st.markdown(f'<div class="price-tag">總計： NT$ {price}</div>', unsafe_allow_html=True)
 
             # 送出訂單按鈕
             if st.button("✅ 確認送出我的點餐", use_container_width=True):
                 if user_name.strip() == "" or drink_item.strip() == "":
                     st.error("⚠️ 姓名和飲料名稱一定要填寫喔！")
                 else:
-                    # 將這筆訂單存入系統記憶中
                     new_order = {
                         "姓名": user_name,
                         "飲料品項": drink_item,
+                        "尺寸": selected_size,
                         "甜度": sugar_level,
                         "冰塊": ice_level,
+                        "金額": price,
                         "備註": notes
                     }
-                    st.session_state.orders.append(
+                    st.session_state.orders.append(new_order)
+                    st.success(f"🎉 點餐成功！已將 {user_name} 的 {drink_item} 加入清單。")
